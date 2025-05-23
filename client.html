@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spring AI Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Spring AI Chat</h2>
+    <div id="chat-box" style="border:1px solid #ccc; padding:10px; height:300px; overflow:auto;"></div>
+    <input type="text" id="input" placeholder="Type your message..." style="width:80%;">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const sessionId = Math.random().toString(36).substring(2);
+        const socket = new WebSocket('ws://localhost:7899/chat');
+        const stompClient = Stomp.over(socket);
+        const chatBox = document.getElementById('chat-box');
+
+        stompClient.connect({}, () => {
+            stompClient.subscribe('/topic/reply', (message) => {
+                const text = message.body;
+                const div = document.createElement('div');
+                div.innerHTML = '<strong>AI:</strong> ' + text;
+                chatBox.appendChild(div);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('input');
+            const message = input.value;
+            if (!message) return;
+
+            const div = document.createElement('div');
+            div.innerHTML = '<strong>You:</strong> ' + message;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            stompClient.send('/app/ask', {}, JSON.stringify({
+                sessionId: sessionId,
+                message: message
+            }));
+
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
