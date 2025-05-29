@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
@@ -24,14 +26,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-chroma")
+
     implementation("org.springframework.boot:spring-boot-starter-websocket")
-//    implementation("org.springframework.ai:spring-ai-starter-model-openai")
-//    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
-//    implementation("org.springframework.ai:spring-ai-starter-vector-store-neo4j")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
 }
 
 dependencyManagement {

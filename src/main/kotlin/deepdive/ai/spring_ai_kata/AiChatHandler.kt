@@ -1,21 +1,18 @@
 package deepdive.ai.spring_ai_kata
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.handler.annotation.SendTo
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.stereotype.Controller
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 import java.util.concurrent.ConcurrentHashMap
-import org.apache.logging.log4j.message.Message
 import org.springframework.ai.chat.messages.AssistantMessage
-import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 
 @Configuration
@@ -31,15 +28,6 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     }
 }
 
-@Configuration
-class AiConfig(
-    private val chatBuilder: ChatClient.Builder
-) {
-    @Bean
-    fun chatClient(): ChatClient {
-        return chatBuilder.build()
-    }
-}
 
 data class ChatMessage(
     val sessionId: String,
@@ -51,18 +39,19 @@ class ChatController(
     private val chatClient: ChatClient
 ) {
     private val sessionContext: MutableMap<String, MutableList<String>> = ConcurrentHashMap()
+    private val logger = KotlinLogging.logger {}
 
     @MessageMapping("/ask")
     @SendTo("/topic/reply")
     fun handleMessage(
         @Payload chatMessage: ChatMessage,
-        headerAccessor: SimpMessageHeaderAccessor
     ): String {
         val sessionId = chatMessage.sessionId
-        val prompt = chatMessage.message
-
+        val message = chatMessage.message
         val history = sessionContext.computeIfAbsent(sessionId) { mutableListOf() }
-        history.add("user: $prompt")
+        history.add("user: $message")
+        logger.info { "Received message from session $sessionId: $message" }
+        logger.info { "Current history for session $sessionId: $history" }
 
         val response = chatClient
             .prompt()
@@ -84,7 +73,6 @@ class ChatController(
                 }
             ).call()
             .content()
-
         history.add("assistant: $response")
         return response ?: "응답을 생성할 수 없습니다."
     }
