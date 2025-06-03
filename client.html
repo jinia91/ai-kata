@@ -3,6 +3,7 @@
 <head>
     <title>Spring AI Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 </head>
 <body>
     <h2>Spring AI Chat</h2>
@@ -12,12 +13,12 @@
 
     <script>
         const sessionId = Math.random().toString(36).substring(2);
-        const socket = new WebSocket('ws://localhost:7899/chat');
+        const socket = new SockJS('http://localhost:7899/chat?sessionId=' + sessionId);
         const stompClient = Stomp.over(socket);
         const chatBox = document.getElementById('chat-box');
 
         stompClient.connect({}, () => {
-            stompClient.subscribe('/topic/reply', (message) => {
+            stompClient.subscribe('/user/' + sessionId +'/reply', (message) => {
                 const text = message.body;
                 const div = document.createElement('div');
                 div.innerHTML = '<strong>AI:</strong> ' + text;
