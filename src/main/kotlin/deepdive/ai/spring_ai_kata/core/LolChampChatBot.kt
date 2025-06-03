@@ -1,4 +1,4 @@
-package deepdive.ai.spring_ai_kata
+package deepdive.ai.spring_ai_kata.core
 
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
