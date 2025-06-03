@@ -38,21 +38,18 @@ class EmbeddingService(
                     val allytips = allytipsNode?.mapNotNull { it?.asText() } ?: emptyList()
                     val enemytips = enemytipsNode?.mapNotNull { it?.asText() } ?: emptyList()
                     val metadata = mapOf("type" to "champion", "name" to name)
-                    // Compose documents for each aspect
-                    val boostedName = (name + " ").repeat(10).trim() // Repeat to boost importance in embedding
-
                     championDocs.add(
                         Document(
-                            name + "-title-lore",
-                            "챔피언 이름: $boostedName\n타이틀: $title\n배경 이야기: $lore",
+                            "$name-title-lore",
+                            "챔피언 이름: $name\n타이틀: $title\n배경 이야기: $lore",
                             metadata
                         )
                     )
                     if (allytips.isNotEmpty()) {
                         championDocs.add(
                             Document(
-                                name + "-allytips",
-                                "챔피언 이름: $boostedName\n추천 팁:\n${allytips.joinToString("\n")}",
+                                "$name-allytips",
+                                "챔피언 이름: $name\n추천 팁:\n${allytips.joinToString("\n")}",
                                 metadata
                             )
                         )
@@ -60,8 +57,8 @@ class EmbeddingService(
                     if (enemytips.isNotEmpty()) {
                         championDocs.add(
                             Document(
-                                name + "-enemytips",
-                                "챔피언 이름: $boostedName\n상대 팁:\n${enemytips.joinToString("\n")}",
+                                "$name-enemytips",
+                                "챔피언 이름: $name\n상대 팁:\n${enemytips.joinToString("\n")}",
                                 metadata
                             )
                         )
