@@ -18,6 +18,12 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://repo.spring.io/snapshot") }
+    maven {
+        name = "Central Portal Snapshots"
+        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+    }
 }
 
 extra["springAiVersion"] = "1.0.0"
@@ -28,7 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
-//    implementation("org.springframework.ai:spring-ai-starter-vector-store-chroma")
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-chroma")
 
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

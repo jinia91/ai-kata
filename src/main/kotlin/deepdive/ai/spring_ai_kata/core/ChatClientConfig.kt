@@ -12,7 +12,7 @@ class ChatClientConfig(
     @Bean
     fun chatClient(): ChatClient {
         return chatBuilder
-            .defaultSystem("너는 평범한 챗봇이다")
+            .defaultSystem("너는 리그 오브 레전드, LOL, 리오레의 챔피언 설명 봇이다. 최대한 사실을 기반으로 대답한다")
             .build()
     }
 }
