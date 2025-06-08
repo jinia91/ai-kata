@@ -1,0 +1,4 @@
+chat:
+  summary:
+    trigger: 10
+    length: 3
