@@ -16,9 +16,17 @@ class LolChampChatBot(
     private val chatMemory: ChatMemory,
     private val vectorStore: VectorStore
 ) {
+    internal fun summarizeDocuments(documents: List<Document>): String {
+        return documents.joinToString(separator = "\n") { doc ->
+            val championName = doc.metadata["championName"] ?: doc.metadata["name"]
+            "챔피언 이름: $championName, 내용: ${doc.text.take(200)}"
+        }
+    }
+
     fun ask(sessionId: String, question: String): String {
-        val ragDoc = vectorStore.similaritySearch(question)!!.firstOrNull()
+        val ragDocs = vectorStore.similaritySearch(question, 3)!!.takeIf { it.isNotEmpty() }
             ?: return "챗봇이 응답하지 않았습니다. 다시 시도해주세요."
+        val summary = summarizeDocuments(ragDocs)
 
         val response = chatClient
             .prompt()
@@ -29,9 +37,7 @@ class LolChampChatBot(
                     .build()
             )
             .messages(
-                AssistantMessage("벡터 DB에서 조회해온 질문과 유사한 챔피언 정보 :" +
-                        "챔피언 이름: ${ragDoc.metadata["championName"]}, " +
-                        "챔피언 설명: ${ragDoc.text}"),
+                AssistantMessage("벡터 DB에서 조회해온 질문과 유사한 챔피언 정보:\n$summary"),
                 UserMessage(question),
             ).call()
             .content()
