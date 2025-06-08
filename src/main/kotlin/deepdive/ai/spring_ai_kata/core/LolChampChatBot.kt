@@ -7,6 +7,7 @@ import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.document.Document
+import org.springframework.ai.vectorstore.SearchRequest
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.stereotype.Component
 
@@ -19,12 +20,16 @@ class LolChampChatBot(
     internal fun summarizeDocuments(documents: List<Document>): String {
         return documents.joinToString(separator = "\n") { doc ->
             val championName = doc.metadata["championName"] ?: doc.metadata["name"]
-            "챔피언 이름: $championName, 내용: ${doc.text.take(200)}"
+            "챔피언 이름: $championName, 내용: ${doc.text}"
         }
     }
 
     fun ask(sessionId: String, question: String): String {
-        val ragDocs = vectorStore.similaritySearch(question, 3)!!.takeIf { it.isNotEmpty() }
+        val request = SearchRequest.builder()
+            .query(question)
+            .topK(3)
+            .build()
+        val ragDocs = vectorStore.similaritySearch(request)!!.takeIf { it.isNotEmpty() }
             ?: return "챗봇이 응답하지 않았습니다. 다시 시도해주세요."
         val summary = summarizeDocuments(ragDocs)
 
