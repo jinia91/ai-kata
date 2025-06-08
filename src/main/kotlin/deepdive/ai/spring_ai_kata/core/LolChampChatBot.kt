@@ -17,7 +17,7 @@ class LolChampChatBot(
     private val chatMemory: ChatMemory,
     private val vectorStore: VectorStore
 ) {
-    internal fun summarizeDocuments(documents: List<Document>): String {
+    fun summarizeDocuments(documents: List<Document>): String {
         return documents.joinToString(separator = "\n") { doc ->
             val championName = doc.metadata["championName"] ?: doc.metadata["name"]
             "챔피언 이름: $championName, 내용: ${doc.text}"
