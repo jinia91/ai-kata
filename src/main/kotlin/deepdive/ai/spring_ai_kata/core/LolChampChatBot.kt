@@ -1,12 +1,12 @@
 package deepdive.ai.spring_ai_kata.core
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor
 import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.UserMessage
-import org.springframework.ai.document.Document
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.stereotype.Component
 
@@ -14,11 +14,20 @@ import org.springframework.stereotype.Component
 class LolChampChatBot(
     private val chatClient: ChatClient,
     private val chatMemory: ChatMemory,
-    private val vectorStore: VectorStore
+    private val vectorStore: VectorStore,
+    private val reranker: CrossEncoderReranker
 ) {
+    private val logger = KotlinLogging.logger {}
+    private val topK = 4
+
     fun ask(sessionId: String, question: String): String {
-        val ragDoc = vectorStore.similaritySearch(question)!!.firstOrNull()
-            ?: return "챗봇이 응답하지 않았습니다. 다시 시도해주세요."
+        val candidates = vectorStore.similaritySearch(question)?.take(topK) ?: emptyList()
+        val ragDoc = try {
+            reranker.rerank(question, candidates).firstOrNull()
+        } catch (ex: Exception) {
+            logger.warn(ex) { "Reranking failed, falling back to similarity search" }
+            candidates.firstOrNull()
+        } ?: return "챗봇이 응답하지 않았습니다. 다시 시도해주세요."
 
         val response = chatClient
             .prompt()
