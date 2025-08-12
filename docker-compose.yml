@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=TRUE
+    ports:
+      - "8000:8000"
+    networks:
+      - chroma-net
+
+networks:
+  chroma-net:
+    driver: bridge

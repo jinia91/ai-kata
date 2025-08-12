@@ -25,7 +25,6 @@ class EmbeddingService(
             try {
                 val mapper = jacksonObjectMapper()
                 val root = mapper.readTree(jsonContent)
-                // The champion data is usually under "data" -> championId
                 val dataNode = root.get("data")
                 if (dataNode != null && dataNode.fieldNames().hasNext()) {
                     val champKey = dataNode.fieldNames().next()
@@ -33,39 +32,23 @@ class EmbeddingService(
                     val name = champNode.get("name")?.asText() ?: champKey
                     val title = champNode.get("title")?.asText() ?: ""
                     val lore = champNode.get("lore")?.asText() ?: ""
-                    val allytipsNode = champNode.get("allytips")
-                    val enemytipsNode = champNode.get("enemytips")
-                    val allytips = allytipsNode?.mapNotNull { it?.asText() } ?: emptyList()
-                    val enemytips = enemytipsNode?.mapNotNull { it?.asText() } ?: emptyList()
-                    val metadata = mapOf("type" to "champion", "name" to name)
+                    val tags = champNode.get("tags")?.map { it.asText() }?.joinToString(", ") ?: ""
+                    val metadata = mapOf("name" to name, "title" to title, "tag" to tags)
+
+                    println("Processing champion: $name")
+                    println("Title: $title")
+                    println("Lore: $lore")
+                    println("Tag: $tags")
+
                     championDocs.add(
                         Document(
                             "$name-title-lore",
-                            "챔피언 이름: $name\n타이틀: $title\n배경 이야기: $lore",
+                            "챔피언 이름: $name\n타이틀: $title\n배경 이야기: $lore, \n태그: $tags",
                             metadata
                         )
                     )
-                    if (allytips.isNotEmpty()) {
-                        championDocs.add(
-                            Document(
-                                "$name-allytips",
-                                "챔피언 이름: $name\n추천 팁:\n${allytips.joinToString("\n")}",
-                                metadata
-                            )
-                        )
-                    }
-                    if (enemytips.isNotEmpty()) {
-                        championDocs.add(
-                            Document(
-                                "$name-enemytips",
-                                "챔피언 이름: $name\n상대 팁:\n${enemytips.joinToString("\n")}",
-                                metadata
-                            )
-                        )
-                    }
                 }
             } catch (e: Exception) {
-                // fallback: skip this file if parsing fails
             }
             championDocs
         }
