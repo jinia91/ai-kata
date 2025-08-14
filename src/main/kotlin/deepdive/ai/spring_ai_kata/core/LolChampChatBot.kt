@@ -5,7 +5,9 @@ import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor
 import org.springframework.ai.chat.memory.ChatMemory
-import org.springframework.ai.chat.messages.AssistantMessage
+import org.springframework.ai.chat.messages.Message
+import org.springframework.ai.chat.messages.SystemMessage
+import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.ChatOptions
 import org.springframework.ai.document.Document
 import org.springframework.ai.rag.Query
@@ -71,11 +73,17 @@ class LolChampChatBot(
                     .conversationId(sessionId)
                     .build()
             )
-            .messages(AssistantMessage("""
-                다음은 사용자의 질문과 관련하여 가장 관련성이 높은 그룹에서 검색된 문서 목록입니다:
-                $documentsContext
-            """.trimIndent()))
-            .user(question)
+            .messages(
+                SystemMessage(
+                    """
+너는 리그 오브 레전드, LOL, 롤의 챔피언 설명 봇이다. 제공되는 문맥을 참고하여 최대한 사실을 기반으로 대답한다. 답을 모르거나 문맥이 부족한경우 모른다고만 말한다. 최대 세문장으로 간결하게 답변해라
+                    <CONTEXT>
+                    $documentsContext
+                    </CONTEXT>
+                    """.trimIndent()
+                ),
+                UserMessage(question)
+            )
             .call()
             .content()
 

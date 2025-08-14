@@ -36,7 +36,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-chroma")
     implementation("org.springframework.ai:spring-ai-rag")
-        implementation ("org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini")
+//    implementation ("org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini")
 
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
